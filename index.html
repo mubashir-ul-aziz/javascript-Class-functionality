@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classes and Courses CRUD</title>
+</head>
+<body>
+
+<h1>Classes Management</h1>
+<input type="text" id="classInput" placeholder="Enter Class Name">
+<button onclick="addClass()">Add Class</button>
+
+<h2>Classes</h2>
+<ul id="classList"></ul>
+
+<h1>Course Management</h1>
+<select id="classSelect">
+    <option value="" disabled selected>Select Class</option>
+</select>
+<input type="text" id="courseInput" placeholder="Enter Course Name">
+<button onclick="addCourse()">Add Course to Class</button>
+
+<h2>Courses in Selected Class</h2>
+<ul id="courseList"></ul>
+
+<script>
+    let classes = [];
+    function addClass() {
+        const className = document.getElementById('classInput').value;
+        if (className === '') return alert("Please enter a class name");
+
+        classes.push({ name: className, courses: [] });
+        document.getElementById('classInput').value = ''; 
+
+        updateClassList();
+        updateClassSelect();
+    }
+
+    function updateClassList() {
+        const classList = document.getElementById('classList');
+        classList.innerHTML = ''; // Clear the list
+
+        classes.forEach((cls, index) => {
+            classList.innerHTML += `
+                <li>
+                    ${cls.name}
+                    <button onclick="deleteClass(${index})">Delete</button>
+                    <button onclick="editClass(${index})">Edit</button>
+                </li>`;
+        });
+    }
+
+    function updateClassSelect() {
+        const classSelect = document.getElementById('classSelect');
+        classSelect.innerHTML = `<option value="" disabled selected>Select Class</option>`; // Reset options
+        classes.forEach((cls, index) => {
+            classSelect.innerHTML += `<option value="${index}">${cls.name}</option>`;
+        });
+    }
+
+    function deleteClass(index) {
+        classes.splice(index, 1);
+        updateClassList();
+        updateClassSelect();
+        updateCourseList(); 
+    }
+
+    function editClass(index) {
+        const newClassName = prompt("Edit Class Name:", classes[index].name);
+        if (newClassName) {
+            classes[index].name = newClassName;
+            updateClassList();
+            updateClassSelect();
+        }
+    }
+
+    function addCourse() {
+        const selectedClassIndex = document.getElementById('classSelect').value;
+        const courseName = document.getElementById('courseInput').value;
+
+        if (selectedClassIndex === '' || courseName === '') return alert("Please select a class and enter a course name");
+
+        classes[selectedClassIndex].courses.push(courseName);
+        document.getElementById('courseInput').value = ''; 
+
+        updateCourseList();
+    }
+
+    function updateCourseList() {
+        const selectedClassIndex = document.getElementById('classSelect').value;
+        const courseList = document.getElementById('courseList');
+        courseList.innerHTML = ''; 
+
+        if (selectedClassIndex !== '') {
+            const selectedClass = classes[selectedClassIndex];
+
+            selectedClass.courses.forEach((course, index) => {
+                courseList.innerHTML += `
+                    <li>
+                        ${course}
+                        <button onclick="deleteCourse(${selectedClassIndex}, ${index})">Delete</button>
+                        <button onclick="editCourse(${selectedClassIndex}, ${index})">Edit</button>
+                    </li>`;
+            });
+        }
+    }
+
+    function deleteCourse(classIndex, courseIndex) {
+        classes[classIndex].courses.splice(courseIndex, 1);
+        updateCourseList();
+    }
+
+    function editCourse(classIndex, courseIndex) {
+        const newCourseName = prompt("Edit Course Name:", classes[classIndex].courses[courseIndex]);
+        if (newCourseName) {
+            classes[classIndex].courses[courseIndex] = newCourseName;
+            updateCourseList();
+        }
+    }
+
+    document.getElementById('classSelect').addEventListener('change', updateCourseList);
+
+</script>
+
+</body>
+</html>
